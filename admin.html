@@ -1,0 +1,564 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>А-ля магазин</title>
+    <link rel="stylesheet" href="./admin.css">
+    <link rel="script" href="./exmp.js">
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+</head>
+<body>
+    <div class="main-preview">
+            <div class="loader">
+                <div class="inner one"></div>
+                <div class="inner two"></div>
+                <div class="inner three"></div>
+            </div> 
+    </div>
+    <div class="sidebar">
+        <div class="sidebar-fixed">
+            <div class="sidebar-container"><img src="./img/g2a_logo.png" alt="g2a_logo" class="g2a-logo"></div>
+            <div class="sidebar-container"><img src="./img/logo.png" alt="main-logo" class="main-logo"></div>
+            <div class="sidebar-container">
+                <section class="weather">
+                    <span class="weather-grad-count"></span>
+                </section>
+                <section class="weather-cityName">Simferopol</section>   <span class="devlp">@kizmato</span>     
+            </div>
+            
+        </div>
+    </div>
+    <div class="main-line"><img src="./img/side.png"></div>
+    <main>
+        <header class="header">
+            <nav class="navigation">
+                    <ul class="navigation-ul">
+                        <li><a href="./index.html">Main</a></li>
+                        <li><a href="./search.html">Search of games</a></li>
+                        <li><a href="./admin.html">Admin</a></li>
+                        <li><a href="./jRat.html">How to jRat'</a></li>
+                        <li><a href="./univer.html">University?!?</a></li>
+                    </ul>
+                    <ul class="navigation-social">
+                        <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                        <li><a href="https://www.vk.com/imsanek"><i class="fab fa-vk"></i></a></li>
+                        <li><a href="https://www.instagram.com/crypticcry/"><i class="fab fa-instagram"></i></a></li>
+                    </ul>
+            </nav>
+        </header>
+
+        <div class="current-section">
+            <ul>
+                <li>Admin</li>
+                <li>All the world is made of faith, and trust, and pixie dust.</li>
+            </ul>
+        </div>
+
+        <article class="content-box">
+
+            <section class="nav-admin">
+
+                    <input type="radio" id="adminSelect1" name="admin-nav" class="hidden" checked>
+                    <label for="adminSelect1" class="nav-admin-selected">Add</label>
+
+                    <input type="radio" id="adminSelect2" name="admin-nav" class="hidden">
+                    <label for="adminSelect2">Edit</label>
+
+            </section>
+
+                <img src="./img/selected.svg" alt="selected-arrow" class="selected-arrow">
+
+            <section class="admin-aside">
+                 
+            </section>
+
+            <section class="admin-games">
+                <div class="admin-games-list">
+
+                </div>
+                <div class="admin-games-search">
+                    <form class="search" >
+                        <input type="text" id="searching" name="search" placeholder="Search...">
+                </div>
+            </section>
+        </article>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+    <script language=javascript>
+
+    $(document).ready(function(){
+        setTimeout(function() {$('.main-preview').fadeOut() }, 400);
+        createAddForm();
+        createAddImg();
+    })
+
+    $.ajax({
+        url: 'http://api.openweathermap.org/data/2.5/weather?',
+        method: 'GET',
+        data:{
+                'APPID': 'dd3a57456109fea01267a4663a3184f7',
+                'q': 'Simferopol',
+                units: 'metric'
+            },
+        context: this,
+        dataType: "html",
+        timeout: 8000,
+        global: false
+    }).done(function(data) {
+        weatherJSON = JSON.parse(data);
+        console.log(weatherJSON);
+        var weatherSrc = 'http://openweathermap.org/img/w/' + weatherJSON.weather[0].icon + '.png';
+        $('.weather').prepend($('<img>', {
+            'class': 'weather-grad-icon',
+            alt: 'weather icon',
+            src: weatherSrc
+        }));
+        $('.weather-grad-count').text(Math.round(weatherJSON.main.temp) + '°C');
+    }).fail(function(){
+        var weatherSrc = './img/cancel.svg';
+        $('.weather').prepend($('<img>', {
+            'class': 'weather-grad-icon',
+            alt: 'weather icon',
+            src: weatherSrc
+        }));
+        $('.weather-grad-count').text(' - °C');
+    });
+
+    $('.main-logo').click(function(){
+        $(this).animate({opacity: '0.3'}, 500);
+        $(this).animate({opacity: '1'}, 500)
+    })
+
+    function isRandom(){
+        return Math.floor(Math.random() * 100);
+    }
+
+    var apiJSON;
+    var adminGameList = $('.admin-games-list');
+    var tmpArr;
+    var data = new Date();
+    var addEventCheck = 1;
+    
+    data = data + '';
+    data = data.split(' ');
+    document.querySelector('.weather-cityName').innerHTML = 'Simferopol | ' + data[0] + ', ' + data[2];
+
+    function createAddForm(){
+        var ajaxDate = data[2]+' '+data[1]+' '+data[3];
+        $('.admin-aside')
+            .html('')
+            .append($('<form/>',{
+                'class': 'CRUD-form',
+                name: 'add'
+            }));
+            $('.CRUD-form')
+            .append($('<span/>',{
+                text: 'Title:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'title',
+                type: 'text',
+                placeholder: 'Enter a game name'
+            }))
+            .append($('<span/>',{
+                text: 'Platform:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'platform',
+                type: 'text',
+                placeholder: "Enter a game platform's"
+            }))
+            .append($('<span/>',{
+                text: 'Price:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'price',
+                type: 'text',
+                placeholder: 'Enter a game price'
+            }))
+            .append($('<span/>',{
+                text: 'Description:'
+            }))
+            .append($('<textarea/>',{
+                'class': 'CRUD-textarea',
+                name: 'description',
+                type: 'text',
+                placeholder: 'Enter a game description',
+                maxlength: 1000
+            }))
+            .append($('<span/>',{
+                'class': 'textarea-counter',
+                text: 'even: ' + 1000
+            }))
+            .append($('<span/>',{
+                text: 'Image url:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'url',
+                type: 'text',
+                placeholder: 'Enter a game icon url'
+            }))
+            .append($('<button/>',{
+                'class': 'CRUD-submit',
+                type: 'sumbit',
+                text: 'Send'
+            }))
+            .submit(function(event){
+                event.preventDefault();
+                var title = $("input[name='title']").val();
+                var platform = JSON.stringify($("input[name='platform']").val().split(' '));
+                var price = $("input[name='price']").val();
+                var url = $("input[name='url']").val();
+                var description = $("textarea[name='description']").val();
+                $.ajax({
+                    url: './api/add.php',
+                    method: 'POST',
+                    data:{
+                            title: title,
+                            platform: platform,
+                            price: price,
+                            description: description,
+                            icon_url: url,
+                            date: ajaxDate
+                        },
+                    context: this,
+                    dataType: 'text'
+                }).done(function(data) {
+                    $('.send-succesfull').remove();
+                    $('.CRUD-form').children('input').removeClass('validate-error');
+                    $("input[name='price']").after($('<span/>', {
+                        text: 'SUCCES',
+                        class: 'send-succesfull GREEN hidden'
+                    }));
+                    $('.send-succesfull').fadeIn();
+                }).fail(function(data) {
+                    $('.CRUD-form').children('input').removeClass('validate-error').each(function(){
+                        if($(this).val() === ''){
+                            $(this).addClass('validate-error');
+                        };
+                    });
+                });
+            });
+        $('.CRUD-textarea').on('input', function(){
+            $('.textarea-counter').text('even: ' +  ($(this).attr('maxlength') - $(this).val().length));
+        });
+    }       
+
+    function createAddImg(){
+        $('.admin-games-list').append($('<img>',{
+            id: 'add-img',
+            src: './img/add.svg',
+            title: 'Add game'
+        }));
+
+        $('#add-img').click(function(){
+            if(addEventCheck === 0){
+                makeSelectedLabel(0, 0);
+                createAddForm();
+                addEventCheck = 1;
+            }else{
+                $('.send-succesfull').remove();
+                $("input[name='price']").after($('<span/>', {
+                    text: 'you already here',
+                    class: 'send-succesfull ORANGE hidden'
+                }));
+                $('.send-succesfull').fadeIn();
+            };
+        });
+    };
+
+    function createEditForm(){
+        addEventCheck = 0;
+
+        $('.admin-aside')
+            .html('')
+            .append($('<form/>',{
+                'class': 'CRUD-form',
+                name: 'add'
+            }));
+        $('.CRUD-form')
+            .append($('<span/>',{
+                text: 'ID:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'id',
+                type: 'text',
+                placeholder: "Enter a game id"
+            }))
+            .append($('<span/>',{
+                text: 'Title:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'title',
+                type: 'text',
+                placeholder: 'Enter a game name'
+            }))
+            .append($('<span/>',{
+                text: 'Platform:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'platform',
+                type: 'text',
+                placeholder: "Enter a game platform's"
+            }))
+            .append($('<span/>',{
+                text: 'Description:'
+            }))
+            .append($('<textarea/>',{
+                'class': 'CRUD-textarea',
+                name: 'description',
+                type: 'text',
+                placeholder: 'Enter a game description',
+                maxlength: 1000
+            }))
+            .append($('<span/>',{
+                'class': 'textarea-counter',
+                text: 'even: ' + 1000
+            }))
+            .append($('<span/>',{
+                text: 'Image url:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'url',
+                type: 'text',
+                placeholder: 'Enter a game icon url'
+            }))
+            .append($('<span/>',{
+                text: 'Price:'
+            }))
+            .append($('<input/>',{
+                'class': 'CRUD-input',
+                name: 'price',
+                type: 'text',
+                placeholder: 'Enter a game price'
+            }))
+            .append($('<button/>',{
+                'class': 'CRUD-submit',
+                type: 'sumbit',
+                text: 'Send'
+            }))
+            .submit(function(event){
+                event.preventDefault();
+                var id = $("input[name='id']").val();
+                var title = $("input[name='title']").val();
+                var platform = JSON.stringify($("input[name='platform']").val().split(' '));
+                var price = $("input[name='price']").val();
+                var url = $("input[name='url']").val();
+                var description = $("textarea[name='description']").val();
+                var validate = true;
+
+                $('.CRUD-form').children('input').removeClass('validate-error').each(function(){
+                    if($(this).val() === ''){
+                        $(this).addClass('validate-error');
+                        validate = false;
+                    };
+                }); 
+                if(validate){
+                    $.ajax({
+                        url: './api/edit.php',
+                        method: 'POST',
+                        data:{
+                                id: id,
+                                title: title,
+                                description: description,
+                                platform: platform,
+                                price: price
+                            },
+                        context: this,
+                        dataType: 'text'
+                    }).done(function(data) {
+                        $('.send-succesfull').remove();
+                        $("input[name='price']").after($('<span/>', {
+                            text: 'SUCCES',
+                            class: 'send-succesfull GREEN hidden'
+                        }));
+                        $('.send-succesfull').fadeIn();
+                    }).fail(function(data) {
+                        $('.CRUD-form').children('input').removeClass('validate-error').each(function(){
+                            if($(this).val() === ''){
+                                $(this).addClass('validate-error');
+                            };
+                        }); 
+                    });
+                }
+            });
+        $('.CRUD-textarea').on('input', function(){
+            $('.textarea-counter').text('even: ' +  ($(this).attr('maxlength') - $(this).val().length));
+        });
+    }
+    
+
+    function makeSelectedLabel(target, coeff){
+        $('.nav-admin').children('label').removeClass('nav-admin-selected');
+        $('.nav-admin').children('input')[target].click();
+        $("input[name='admin-nav']:checked").next().addClass('nav-admin-selected');
+        $('.selected-arrow').animate({top: coeff}, 350);
+    };
+
+    function createGameBlock(data, apiIndex, blockIndex){
+
+        $('.admin-games-list').append($('<div/>', {
+            'class': 'game'
+        }));
+
+        $('.game:eq('+ blockIndex +')').append($('<div/>', {
+            'class': 'game-logo'
+        })).append($('<div/>', {
+            'class': 'game-name',
+            text: data[apiIndex].title
+        })).append($('<div/>',{
+            'class': 'delete-icon',
+        }));
+
+        $('.game-logo:eq('+ blockIndex +')').append($('<img/>', {
+            'class': 'game-logo-img',
+            src: data[apiIndex].icon_url
+        })).click(function(){
+            var currentTarget = $(this).parent().index();
+            // if $("textarea[name='description']") === variable, this not working
+
+            makeSelectedLabel(1, 41);
+            
+            if($('#add-img').length === 0){
+                createAddImg();
+            }
+
+            createEditForm();
+            
+            $("input[name='id']").val(data[currentTarget].id).attr('disabled', true);
+            $("input[name='title']").val(data[currentTarget].title);
+            $("input[name='platform']").val(data[currentTarget].platform.join(' '));
+            $("input[name='price']").val(data[currentTarget].price);
+            $("input[name='url']").val(data[currentTarget].icon_url);
+            $("textarea[name='description']").val(data[currentTarget].description);
+            $('.textarea-counter').text('even: ' +  ($("textarea[name='description']").attr('maxlength') - $("textarea[name='description']").val().length));
+        });
+
+        $('.delete-icon:eq('+ blockIndex +')').click(function(){
+            var currentTarget = $(this).parent().index();
+            var currentGame = $('.game:eq('+ currentTarget +')');
+            console.log(data[currentTarget].id);
+            $('main').append($('<div/>', {
+                'class': 'pop-up hidden'
+            }));
+
+            $('.pop-up')
+            .append($('<div/>', {
+                'class': 'delete-modal'
+            }))
+            .append($('<div/>',{
+                'class': 'close-pop',
+            }))
+            .click(function(event){
+                if((event.target === this)||(event.target.classList[0] === 'close-pop')){
+                    $(this).remove();
+                }
+            });
+
+            $('.delete-modal')
+            .append($('<span/>', {
+                text: 'Delete this game?'
+            }))
+            .append($('<button/>', {
+                'id': 'modal-yes'
+            }))
+            .append($('<button/>', {
+                'id': 'modal-no'
+            }));
+            
+            $('#modal-yes').click(function(){
+                $.ajax({
+                    url: './api/delete.php',
+                    method: 'POST',
+                    data:{
+                            id: data[currentTarget].id
+                        },
+                    context: this,
+                    dataType: 'text'
+                }).done(function(data) {
+                    $('.delete-modal').html('').append($('<span/>', {
+                        text: 'SUCCES',
+                        class: 'send-succesfull GREEN hidden'
+                    }));
+                    $('.pop-up').click();
+                    currentGame.fadeOut();
+                    setTimeout(function(){
+                        currentGame.remove();
+                    },1500);
+                    $('.send-succesful').fadeIn();
+                }).fail(function(data) {
+                    $('.delete-modal').html('').append($('<span/>', {
+                        text: 'SERVER ERROR',
+                        class: 'send-error RED hidden'
+                    }));
+                    $('.send-error').fadeIn();
+                });
+            });
+
+            $('#modal-no').click(function(){
+                $('.pop-up').click();
+            });
+        });
+    };
+
+     $.ajax({
+        url: './api/database.json',
+        method: 'GET',
+        data:{},
+        context: this,
+        dataType: 'text'
+    }).done(function(data) {
+        apiJSON = JSON.parse(data);
+        if(apiJSON){
+            console.log(apiJSON);
+            for(var i = 0; i < apiJSON.length; i++){
+                createGameBlock(apiJSON, i, i);
+            };
+        };
+    }).fail(function(data){
+        console.log(data);
+    });  
+
+    $('.search')
+    .submit(function(event){
+        event.preventDefault();
+    });
+
+    
+
+    $('#searching')
+    .on('input', function(){
+        if($(this).val() === ""){
+            adminGameList.html('');
+            tmpArr = [];
+            for(var x = 0; x < apiJSON.length; x++){
+                createGameBlock(apiJSON, x, x);
+            };
+            createAddImg();
+        }else{
+            var blockIndex = 0;
+            adminGameList.html('');
+            for(var k = 0; k < apiJSON.length; k++){
+              if(apiJSON[k].title.toLowerCase().indexOf($(this).val().toLowerCase()) != -1){
+                createGameBlock(apiJSON, apiJSON.findIndex(x => x.id === apiJSON[k].id), blockIndex);
+                blockIndex++;  
+              };
+            };
+            if($('.admin-games-list').children().length === 0){
+                $('.admin-games-list').text($(this).val() + ' not found');
+            }else{
+                createAddImg();
+            };
+        };
+    });
+</script>
+</body
+</html>

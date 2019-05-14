@@ -1,0 +1,591 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>А-ля магазин</title>
+    <link rel="stylesheet" href="./search.css">
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+</head>
+<body>
+    <div class="main-preview">
+        <div class="loader">
+            <div class="inner one"></div>
+            <div class="inner two"></div>
+            <div class="inner three"></div>
+        </div> 
+    </div>
+    <div class="sidebar">
+        <div class="sidebar-fixed">
+            <div class="sidebar-container"><img src="./img/g2a_logo.png" alt="g2a_logo" class="g2a-logo"></div>
+            <div class="sidebar-container"><img src="./img/logo.png" alt="main-logo" class="main-logo"></div>
+            <div class="sidebar-container">
+                <section class="weather">
+                    <span class="weather-grad-count"></span>
+                </section>
+                <section class="weather-cityName">Simferopol</section>  
+                <span class="devlp">@kizmato</span>     
+            </div>
+        </div>
+    </div>
+    <div class="main-line"><img src="./img/side.png"></div>
+    <main>
+        <header class="header">
+            <nav class="navigation">
+                    <ul class="navigation-ul">
+                        <li><a href="./index.html">Main</a></li>
+                        <li><a href="./search.html">Search of games</a></li>
+                        <li><a href="./admin.html">Admin</a></li>
+                        <li><a href="./jRat.html">How to jRat'</a></li>
+                        <li><a href="./univer.html">University?!?</a></li>
+                    </ul>
+                    <ul class="navigation-social">
+                        <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                        <li><a href="https://www.vk.com/imsanek"><i class="fab fa-vk"></i></a></li>
+                        <li><a href="https://www.instagram.com/crypticcry/"><i class="fab fa-instagram"></i></a></li>
+                    </ul>
+            </nav>
+        </header>
+
+        <div class="current-section">
+            <ul>
+                <li>Search of games</li>
+                <li>Hey buddy, the leather club is 2 blocks down</li>
+                <li><button class="full-search">View all</button></li>
+            </ul>
+        </div>
+        <form class="search" >
+                <input type="text" id="searching" name="search" placeholder="Search...">
+                <button title="search" id="search" type="submit" class="search-buttons"><i class="fas fa-search"></i></button>
+                <input  id="filter" type="checkbox" hidden>
+                <label  name="filter" title="filter" for="filter" class="search-buttons"><i class="fas fa-filter"></i></label>
+                <div class="filter-list">
+                    <label for="sort-rating" title="sort-rating" name="filter-selectors"><i class="fas fa-star"></i></label>
+                    <input type="radio" name="sort-radio" id="sort-rating" hidden>
+                    
+                    <label for="sort-price" title="sort-price" name="filter-selectors"><i class="fas fa-sort-numeric-down"></i></label>
+                    <input type="radio" name="sort-radio" id="sort-price" hidden>
+                    
+                    <label for="sort-alphabet" title="sort-alphabet" name="filter-selectors"><i class="fas fa-sort-alpha-down"></i></label>
+                    <input type="radio" name="sort-radio" id="sort-alphabet" hidden>
+                    
+                    <label for="sort-free" title="free" name="filter-selectors"><i class="fas fa-hand-holding-usd"></i></label>
+                    <input type="checkbox" id="sort-free" hidden>
+                    
+                    <label for="sort-platform" title="your-platform" name="filter-selectors"><i class="fas fa-gamepad"></i></label>
+                    <input type="checkbox" id="sort-platform" hidden>
+                </div>
+        </form>
+
+        <article class="container">
+                <div class="overlay hidden">
+                        <div class="loader">
+                            <div class="inner one"></div>
+                            <div class="inner two"></div>
+                            <div class="inner three"></div>
+                       </div>                      
+                </div>
+                <div class="content-box hidden">
+                    <div class="search-preview">
+                        <img src="https://ui-ex.com/images/geometric-vector-fox-2.png" alt="fox">
+                            <ul>
+                                <li>Your bunny runs.</li>
+                                <li>Enter your inquiry</li>
+                            </ul>
+                    </div>
+                </div>
+        </article>
+        <button class="extension-page hidden" id="extension-page">ПОКАЗАТЬ ВСЁ</button>
+        
+    </main>
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+    <script src="./js/rating.js"></script>
+    <script>
+        var i = 0; 
+        var apiJSON;
+        var filterToggle;
+        var platformToggle;
+
+        $(document).ready(function(){
+            setTimeout(function() {$('.main-preview').fadeOut() }, 400);
+        })
+
+        $("label[name='filter']").click(function(){
+            if(filterToggle === 0){
+                $(this).addClass('filter-checked');
+                $('.filter-list').animate({opacity: 1, height: '175px'});
+                filterToggle = 1;
+            }else{
+                $('.filter-list').animate({opacity: 0, height: '0'}, 100);
+                $(this).removeClass('filter-checked');
+                filterToggle = 0;
+            }
+        });
+
+        $('.filter-list').children('input').change(function(){
+            var allInputs = $('.filter-list').children('input');
+            var allLabels = $('.filter-list').children('label');
+            //$(this).addClass('filter-label-checked');
+            for(var counter = 0; counter < allInputs.length; counter++){
+                $(allLabels[counter]).removeClass('filter-label-checked');
+                if(allInputs[counter].checked){
+                   $(allLabels[counter]).addClass('filter-label-checked');
+                }
+            };
+        });
+
+        function sendAJAX(url){
+            var query = $('#searching').val();
+            $('.content-box').html('');
+            i = 0;
+            
+            $('.extension-page-none').addClass('extension-page').removeClass('extension-page-none');
+            $('.extension-page').hide().attr('disabled', false).text('ПОКАЗАТЬ ВСЁ');
+            $('.overlay').show();
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                data:{
+                        title: query
+                    },
+                context: this,
+                dataType: "html",
+                timeout: 8000,
+                global: false
+            }).done(function(data) {
+                console.log(JSON.parse(data));
+                apiJSON = JSON.parse(data);
+                searchFilters();
+                if(apiJSON.length !== 0)
+                {
+                    for(i; i < 4;){
+                        if(i === apiJSON.length){break;};
+                        createContentBlock(apiJSON[i]);
+                        i++; 
+                    }
+                    
+                    if(i < apiJSON.length){ $('.extension-page').show();}                      
+                }else { 
+                    $('.content-box').append($('<section/>', {
+                        'class': 'ERROR hidden',
+                        text: 'GAME NOT FOUND'
+                    }))
+                    $('.ERROR').hide();
+                    $('.ERROR').fadeIn(1200);
+                }
+            }).fail(function(jqXHR) {
+                console.log(jqXHR.status);
+                $('.content-box').append($('<section/>', {
+                    'class': 'ERROR hidden',
+                    text: 'ERROR: ' + jqXHR.status
+                }))
+                $('.ERROR').hide();
+                $('.ERROR').fadeIn(1200);
+            }).always(function() {
+                $('.overlay').hide();
+            });
+        };
+
+        function searchFilters(){
+            var selected = $('.filter-list').children('input');
+            if(selected[0].checked){
+                apiJSON.sort(function(a, b) {
+                    return parseFloat(b.rating) - parseFloat(a.rating);
+                });
+            };
+            if(selected[1].checked){
+                apiJSON.sort(function(a, b) {
+                    return parseFloat(a.price) - parseFloat(b.price);
+                });
+            };
+            if(selected[2].checked){
+                apiJSON.sort(function(a,b) {
+                    if(a.title[0] < b.title[0]) { return -1; }
+                    if(a.title[0] > b.title[0]) { return 1; }
+                    return 0;
+                });
+            };
+            if(selected[3].checked){
+                var sortJSON = [];
+                apiJSON.forEach(function(a){
+                    if(a.price === 0){
+                        sortJSON.push(a);
+                    }; 
+                });
+                apiJSON = sortJSON;
+                console.log(apiJSON);
+            };
+            if(selected[4].checked){
+                var OSName="Unknown OS";
+                if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+                if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOs";
+                if (navigator.appVersion.indexOf("Linux")!=-1) OSName="SteamOS";
+                var sortJSON = [];
+                apiJSON.forEach(function(a){
+                    if(a.platform.indexOf(OSName)!= -1){
+                        sortJSON.push(a);
+                    }; 
+                });
+                apiJSON = sortJSON;
+            };
+            return apiJSON;
+        }
+
+        $.ajax({
+                url: 'http://api.openweathermap.org/data/2.5/weather?',
+                method: 'GET',
+                data:{
+                        'APPID': 'dd3a57456109fea01267a4663a3184f7',
+                        'q': 'Simferopol',
+                        units: 'metric'
+                    },
+                context: this,
+                dataType: "html",
+                timeout: 8000,
+                global: false
+            }).done(function(data) {
+                weatherJSON = JSON.parse(data);
+                console.log(weatherJSON);
+                var weatherSrc = 'http://openweathermap.org/img/w/' + weatherJSON.weather[0].icon + '.png';
+                $('.weather').prepend($('<img>', {
+                    'class': 'weather-grad-icon',
+                    alt: 'weather icon',
+                    src: weatherSrc
+                }));
+                $('.weather-grad-count').text(Math.round(weatherJSON.main.temp) + '°C');
+            }).fail(function(){
+                var weatherSrc = './img/cancel.svg';
+                $('.weather').prepend($('<img>', {
+                    'class': 'weather-grad-icon',
+                    alt: 'weather icon',
+                    src: weatherSrc
+                }));
+                $('.weather-grad-count').text(' - °C');
+            });
+
+
+        function isRatingColor(rating){ 
+            if((rating > 0)&&(rating <= 5)){
+                $('.id-aside-critic:eq('+i+')').addClass('RED');
+            };
+            if((rating > 5)&&(rating <= 7.5)){
+                $('.id-aside-critic:eq('+i+')').addClass('ORANGE');
+            };
+            if((rating > 7.5)&&(rating <= 10)){
+                $('.id-aside-critic:eq('+i+')').addClass('GREEN');
+            };
+        };
+
+        function isRatingColorFull(rating){ 
+            if((rating > 0)&&(rating <= 5)){
+                $('.full-aside-critic').addClass('RED');
+            };
+            if((rating > 5)&&(rating <= 7.5)){
+                $('.full-aside-critic').addClass('ORANGE');
+            };
+            if((rating > 7.5)&&(rating <= 10)){
+                $('.full-aside-critic').addClass('GREEN');
+            };
+        };
+
+
+        function createPlatfom(apiJSON){
+            var idAside =  $('.id-aside-text:eq('+i+')');
+            apiJSON.platform.forEach(function(elem) {
+                if(elem === 'Windows'){
+                    idAside.append($('<img>',{
+                        'class': 'platform',
+                        src: './img/windows.svg'
+                    }));
+                };
+                if(elem === 'SteamOS'){
+                    idAside.append($('<img>',{
+                        'class': 'platform',
+                        src: './img/linux.svg'
+                    }));
+                };
+                if(elem === 'MacOs'){
+                    idAside.append($('<img>',{
+                        'class': 'platform',
+                        src: './img/mac.svg'
+                    }));
+                };
+            });
+            idAside.append($('<p/>', {
+                text: 'Click, if you need more...'
+            }));
+        };
+
+        
+        function createFullBlock (currentTarget){
+            var targerJSON = apiJSON[currentTarget];
+
+            $('main').append($('<div/>', {
+                'class': 'pop-up hidden'
+            }));
+            $('.pop-up').append($('<div/>', {
+                'class': 'full-content'
+            })).append($('<div/>',{
+                'class': 'close-pop',
+            }));
+            $('.pop-up').fadeIn(300).click(function(event){
+                if((event.target === this)||(event.target.classList[0] === 'close-pop')){
+                    $(this).remove();
+                    $('.full-content').remove();
+                    $('body').css({'overflow': 'visible'});
+                }
+            });
+
+            $('.full-content').hide().fadeIn(400).append($('<div/>', {
+                'class': 'full-logo'
+            })).append($('<aside/>', {
+                'class': 'full-aside'
+            }));
+
+            $('.full-logo').append($('<div/>', {
+                'class': 'full-aside-header'
+            })).append($('<div/>', {
+                'class': 'full-logo-img'
+            }))
+            $('.full-logo-img').append($('<img/>', {
+                'class': 'full-img-aside',
+                src: targerJSON.icon_url
+            }));
+            
+    
+            $('.full-aside').append($('<div/>', {
+                'class': 'full-title'
+            })).append($('<div/>', {
+                'class': 'full-aside-text'
+            
+            })).append($('<div/>', {
+                'class': 'full-aside-price'
+            }));
+            
+            $('.full-title').append($('<span/>', {
+                    'class': 'font-title-text',
+                    text: 'Overview:'
+                })).append($('<div/>', {
+                'class': 'full-aside-critic',
+                text: targerJSON.rating.toFixed(1) 
+            }));
+            
+            isRatingColorFull(targerJSON.rating);
+
+            if(targerJSON.price === 0){
+                $('.full-aside-price')
+                .append($('<span/>', {
+                    text: 'Vote: '
+                })).append($('<input>',{
+                    name: 'my_input',
+                    value: '3',
+                    'id': 'rating_simple',
+                    type: 'hidden'
+                })).append($('<span/>', {
+                text: ' free to play'
+            }))}
+            else{
+                $('.full-aside-price')
+                .append($('<span/>', {
+                    text: 'Vote: '
+                })).append($('<input>',{
+                    name: 'my_input',
+                    value: '3',
+                    'id': 'rating_simple',
+                    type: 'hidden'
+                })).append($('<i/>', {
+                    'class': 'fas fa-ruble-sign'
+                }))
+                .append($('<span/>', {
+                    text: targerJSON.price
+                }));
+            };
+
+            $(function() {
+                $("#rating_simple")
+                .webwidget_rating_simple({
+                    rating_star_length: '5',
+                    rating_initial_value: '',
+                    rating_function_name: '',
+                    directory: './img/'
+                });
+
+                $("#rating_simple")
+                .next()
+                .click(function(){
+                    $(this).remove();
+                    
+                    $.ajax({
+                    url: './api/vote.php',
+                    method: 'POST',
+                    data:{
+
+                            id: targerJSON.id,
+                            rating: $('#rating_simple').val() * 2
+                        },
+                    context: this,
+                    dataType: 'text'
+                    }).done(function(data) {
+                            console.log('gatova' + data);
+                            $("#rating_simple").after($('<span/>', {
+                                text: 'thx for your vote',
+                                class: 'vote-succesfull GREEN hidden'
+                            }));
+                            $('.vote-succesfull').fadeIn();
+                    }).fail(function(data){
+                        console.log('gatova' + data);
+                            $("#rating_simple").after($('<span/>', {
+                                text: 'pls try again',
+                                class: 'vote-error RED hidden'
+                            }));
+                            $('.vote-error').fadeIn();
+                    });
+                });
+            });
+    
+    
+            $('.full-aside-header').append($('<ul/>', {
+                'class': 'full-aside-header-name'
+            }));
+
+            $('.full-aside-header-name').append($('<li/>', {
+                text: targerJSON.title
+                })).append($('<li/>', {
+                text: targerJSON.date + ' Год' || '-'
+            }));
+
+            if((targerJSON.description === '')||(targerJSON.description === ' ')){
+                $('.full-aside-text').append($('<p/>', {
+                    text: 'This game has no description!'
+                }))}
+            else{
+                $('.full-aside-text').append($('<p/>', {
+                    text: targerJSON.description
+                }));
+            };
+            
+            $('body').css({'overflow': 'hidden'});
+        };
+        
+        function createContentBlock(apiJSON){
+            $('.content-box').append($('<section/>', {
+                'class': 'content'
+            }));
+                $('.content:eq('+i+')').append($('<div/>', {
+                'class': 'id-logo'
+            })).append($('<aside/>', {
+                'class': 'id-aside'
+            })).click(function(){
+                var currentTarget = $(this).index();
+                console.log(currentTarget);
+                createFullBlock(currentTarget);
+            });
+    
+            $('.id-logo:eq('+i+')').append($('<div/>', {
+                'class': 'id-logo-img'
+            }));
+            $('.id-logo-img:eq('+i+')').append($('<img/>', {
+                'class': 'img-aside',
+                src: apiJSON.icon_url
+            }));
+            
+    
+            $('.id-aside:eq('+i+')').append($('<div/>', {
+                'class': 'id-aside-header'
+            })).append($('<div/>', {
+                'class': 'id-aside-text'
+            })).append($('<div/>', {
+                'class': 'id-aside-price'
+            }));
+
+
+            if(apiJSON.price === 0){
+                $('.id-aside-price:eq('+i+')').append($('<span/>', {
+                text: ' free to play'
+            })) 
+            }else{
+                $('.id-aside-price:eq('+i+')').append($('<i/>', {
+                    'class': 'fas fa-ruble-sign'
+                })).append($('<span/>', {
+                    text: apiJSON.price
+                }));
+            };
+            
+            $('.id-aside-header:eq('+i+')').append($('<ul/>', {
+                'class': 'id-aside-header-name'
+            })).append($('<div/>', {
+                'class': 'id-aside-critic',
+                text: apiJSON.rating.toFixed(1)
+            }));
+
+            isRatingColor(apiJSON.rating);
+
+            $('.id-aside-header-name:eq('+i+')').append($('<li/>', {
+                text: apiJSON.title
+                })).append($('<li/>', {
+                text: apiJSON.date + ' Год' || '-'
+            }));
+    
+            createPlatfom(apiJSON);
+        };
+
+        $('.main-logo').click(function(){
+            $(this).animate({opacity: '0.3'}, 500);
+            $(this).animate({opacity: '1'}, 500)
+        })
+        
+        $('.search-preview').animate({opacity: "1"}, 1500);
+
+        var timer;
+        var timeBox;
+
+        $('#searching').on('input', function(){
+            timer = 0;
+            clearInterval(timeBox);
+            timeBox = setInterval(function(){
+                timer++;
+            }, 100);
+            setTimeout(function(){
+                if(timer === 15){
+                    $('.search').submit();
+                    clearInterval(timeBox);
+                };
+            }, 1500);
+        });
+        $('.full-search').click(function(){
+            var url = './api/database.json';
+            sendAJAX(url);
+        });
+
+        $('.search').submit(function(event){
+
+            event.preventDefault();
+
+            console.log('its search');
+
+            var url = './api/get.php';
+            
+            sendAJAX(url);
+
+        });    
+            var data = new Date();
+            data = data + '';
+            data = data.split(' ');
+        
+            $('.weather-cityName').text('Simferopol | ' + data[0] + ', ' + data[2]);
+            
+            $('.extension-page').click(function(){ 
+                for(var j = 0; j < apiJSON.length; j++){
+                    if(i > apiJSON.length-2){
+                        $(this).attr('disabled', true).text('Everything is shown').removeClass('extension-page').addClass('extension-page-none');
+                    };
+                    if(i > apiJSON.length-1){
+                        break;
+                    };
+                    createContentBlock(apiJSON[i]);
+                    i++;
+                }
+            });
+    </script>
+</body>
+</html>
